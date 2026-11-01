@@ -7,8 +7,7 @@
   --fg: #1a1a18;
   --muted: #8a8a86;
   --accent: #4f46e5;
-  --accent-soft: #eef2ff;
-  --pos: #16a34a;
+  --on-accent: #ffffff;
   --neg: #dc2626;
 }
 
@@ -20,8 +19,7 @@
     --fg: #f0f0ee;
     --muted: #86868c;
     --accent: #818cf8;
-    --accent-soft: #26264a;
-    --pos: #4ade80;
+    --on-accent: #111113;
     --neg: #f87171;
   }
 }
@@ -33,8 +31,7 @@
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-pos: var(--pos);
+  --color-on-accent: var(--on-accent);
   --color-neg: var(--neg);
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
     "Helvetica Neue", sans-serif;
@@ -62,11 +59,6 @@ button,
 input,
 select {
   touch-action: manipulation;
-}
-
-input[type="date"] {
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 @keyframes sheet-in {

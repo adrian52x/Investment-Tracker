@@ -1,32 +1,31 @@
-import type { Account } from "./types";
+const LOCALE = "da-DK";
 
-export function formatMoney(account: Account, value: number): string {
-  return new Intl.NumberFormat(account.locale, {
-    style: "currency",
-    currency: account.currency,
-  }).format(value);
+const money = new Intl.NumberFormat(LOCALE, {
+  style: "currency",
+  currency: "DKK",
+});
+
+export function formatMoney(value: number): string {
+  return money.format(value);
 }
 
-/** Format with an explicit sign for P/L figures, e.g. "+3.000,00 kr." */
-export function formatSignedMoney(account: Account, value: number): string {
-  return new Intl.NumberFormat(account.locale, {
-    style: "currency",
-    currency: account.currency,
-    signDisplay: "exceptZero",
-  }).format(value);
+/** Groups the whole part of a keypad amount, e.g. "1250,5" → "1.250,5". */
+export function formatKeypadAmount(input: string): string {
+  const [whole, decimals] = (input || "0").split(",");
+  const grouped = new Intl.NumberFormat(LOCALE).format(Number(whole));
+  return decimals === undefined ? grouped : `${grouped},${decimals}`;
 }
 
-export function formatQuantity(account: Account, value: number): string {
-  return new Intl.NumberFormat(account.locale, {
-    maximumFractionDigits: 6,
-  }).format(value);
-}
-
-export function formatDate(account: Account, isoDate: string): string {
-  const date = new Date(`${isoDate}T00:00:00`);
-  return new Intl.DateTimeFormat(account.locale, {
+export function formatDate(isoDate: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
+  }).format(new Date(`${isoDate}T00:00:00`));
+}
+
+export function formatMonth(month: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    month: "long",
     year: "numeric",
-  }).format(date);
+  }).format(new Date(`${month}-01T00:00:00`));
 }

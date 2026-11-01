@@ -3,13 +3,13 @@ import "./globals.css";
 import SWRegister from "@/components/SWRegister";
 
 export const metadata: Metadata = {
-  title: "Invest",
-  description: "Personal investment tracker",
+  title: "Expenses",
+  description: "Personal expense tracker",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Invest",
+    title: "Expenses",
   },
   icons: {
     apple: "/icons/icon-192.png",
