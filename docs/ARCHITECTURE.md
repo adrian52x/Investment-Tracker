@@ -7,7 +7,7 @@ file. Keep it in step with the code when something here changes.
 
 A phone-first PWA for logging personal expenses in DKK. Each expense has an
 amount, a payment method (card or cash), a category, an optional comment, and a date
-(defaults to today in Copenhagen, can be set to any past date, never a future one). Users have a username and
+(defaults to today in Copenhagen, can be set to any past date from 1 Jan 2026 on, never a future one). Users have a username and
 password, their own categories with an optional emoji icon, a monthly overview,
 and a yearly chart with a search of that year's comments.
 

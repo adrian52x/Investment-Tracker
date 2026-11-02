@@ -9,6 +9,7 @@ import {
 } from "./credentials";
 import {
   currentDate,
+  FIRST_DATE,
   isDate,
   lastEmoji,
   MAX_NOTE_LENGTH,
@@ -204,6 +205,9 @@ export async function saveExpense(input: {
   if (!isDate(input.spentOn)) return { error: "Choose a date." };
   if (input.spentOn > currentDate()) {
     return { error: "The date can't be in the future." };
+  }
+  if (input.spentOn < FIRST_DATE) {
+    return { error: `The date can't be before ${FIRST_DATE.slice(0, 4)}.` };
   }
   const note = input.note.trim();
   if (note.length > MAX_NOTE_LENGTH) {

@@ -7,6 +7,7 @@ import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
 import {
   amountToKeypad,
   currentDate,
+  FIRST_DATE,
   MAX_NOTE_LENGTH,
   parseAmount,
   pressKey,
@@ -158,6 +159,7 @@ export default function ExpenseForm({
           <input
             type="date"
             aria-label="Date"
+            min={FIRST_DATE}
             max={today}
             required
             value={spentOn}

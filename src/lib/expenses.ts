@@ -46,6 +46,8 @@ const MAX_AMOUNT = 9_999_999_999.99;
 export const MAX_NOTE_LENGTH = 200;
 /** The year the app started; year dropdowns begin here. */
 export const FIRST_YEAR = 2026;
+/** The earliest date an expense can have, so none falls before the dropdowns. */
+export const FIRST_DATE = `${FIRST_YEAR}-01-01`;
 const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
 
 /** The columns toExpense reads, with the category's name and icon joined in. */
