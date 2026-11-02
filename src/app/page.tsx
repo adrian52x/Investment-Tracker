@@ -25,25 +25,29 @@ export default async function OverviewPage({
   const [expensesResult, categoriesResult] = await Promise.all([
     supabase
       .from("expenses")
-      .select("id, amount, payment_method, category_id, spent_on, categories(name)")
+      .select("id, amount, payment_method, category_id, spent_on, categories(name, icon)")
       .gte("spent_on", `${month}-01`)
       .lt("spent_on", `${shiftMonth(month, 1)}-01`)
       .order("spent_on", { ascending: false })
       .order("created_at", { ascending: false }),
-    supabase.from("categories").select("id, name").order("name"),
+    supabase.from("categories").select("id, name, icon").order("name"),
   ]);
 
   if (expensesResult.error) throw new Error(expensesResult.error.message);
   if (categoriesResult.error) throw new Error(categoriesResult.error.message);
 
   const expenses: Expense[] = expensesResult.data.map((row) => {
-    const category = row.categories as unknown as { name: string };
+    const category = row.categories as unknown as {
+      name: string;
+      icon: string | null;
+    };
     return {
       id: row.id,
       amount: row.amount,
       paymentMethod: row.payment_method as PaymentMethod,
       categoryId: row.category_id,
       categoryName: category.name,
+      categoryIcon: category.icon,
       spentOn: row.spent_on,
     };
   });

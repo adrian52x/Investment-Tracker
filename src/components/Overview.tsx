@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Chevron from "./Chevron";
 import ExpenseForm from "./ExpenseForm";
 import { logout } from "@/lib/actions";
 import {
@@ -12,23 +13,14 @@ import {
   type Category,
   type Expense,
 } from "@/lib/expenses";
-import { formatDate, formatMoney, formatMonth } from "@/lib/format";
+import {
+  formatCategory,
+  formatDate,
+  formatMoney,
+  formatMonth,
+} from "@/lib/format";
 
 type FormState = { expense?: Expense } | null;
-
-function Chevron({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path
-        d={direction === "left" ? "M12.5 4.5 7 10l5.5 5.5" : "M7.5 4.5 13 10l-5.5 5.5"}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export default function Overview({
   username,
@@ -58,14 +50,22 @@ export default function Overview({
     <main className="mx-auto max-w-lg px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-32">
       <header className="flex items-center justify-between py-2">
         <h1 className="min-w-0 truncate text-base font-semibold">{username}</h1>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="-mr-2 rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
+        <div className="-mr-2 flex shrink-0 items-center">
+          <Link
+            href="/categories"
+            className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
           >
-            Log out
-          </button>
-        </form>
+            Categories
+          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
       </header>
 
       <nav
@@ -126,7 +126,9 @@ export default function Overview({
             {summary.categories.map((category) => (
               <li key={category.id}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="min-w-0 truncate text-sm">{category.name}</span>
+                  <span className="min-w-0 truncate text-sm">
+                    {formatCategory(category.name, category.icon)}
+                  </span>
                   <span className="tnum shrink-0 text-sm font-semibold">
                     {formatMoney(category.total)}
                   </span>
@@ -160,7 +162,7 @@ export default function Overview({
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-base font-medium">
-                      {expense.categoryName}
+                      {formatCategory(expense.categoryName, expense.categoryIcon)}
                     </span>
                     <span className="block text-sm text-muted">
                       {formatDate(expense.spentOn)} ·{" "}

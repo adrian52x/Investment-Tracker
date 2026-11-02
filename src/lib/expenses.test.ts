@@ -3,6 +3,7 @@ import {
   amountToKeypad,
   currentMonth,
   isMonth,
+  lastEmoji,
   parseAmount,
   pressKey,
   shiftMonth,
@@ -17,6 +18,7 @@ function expense(overrides: Partial<Expense>): Expense {
     paymentMethod: "card",
     categoryId: "food",
     categoryName: "Food",
+    categoryIcon: null,
     spentOn: "2026-11-02",
     ...overrides,
   };
@@ -66,6 +68,25 @@ describe("amountToKeypad", () => {
   });
 });
 
+describe("lastEmoji", () => {
+  it("keeps the newest emoji, so a second tap replaces the first", () => {
+    expect(lastEmoji("🛒")).toBe("🛒");
+    expect(lastEmoji("🛒🍕")).toBe("🍕");
+  });
+
+  it("keeps multi-part emoji whole", () => {
+    for (const emoji of ["👩‍💻", "👍🏽", "🇩🇰", "1️⃣", "❤️"]) {
+      expect(lastEmoji(emoji)).toBe(emoji);
+    }
+  });
+
+  it("ignores everything else", () => {
+    expect(lastEmoji("")).toBe("");
+    expect(lastEmoji("abc 12")).toBe("");
+    expect(lastEmoji("🛒a")).toBe("🛒");
+  });
+});
+
 describe("months", () => {
   it("uses Copenhagen time at the month boundary", () => {
     // 23:30 UTC on Oct 31 is already November in Copenhagen (UTC+1).
@@ -102,6 +123,11 @@ describe("summarize", () => {
       ["Rent", 200],
       ["Food", 150],
     ]);
+  });
+
+  it("carries each category's icon", () => {
+    const { categories } = summarize([expense({ categoryIcon: "🛒" })]);
+    expect(categories[0].icon).toBe("🛒");
   });
 
   it("does not accumulate floating point error", () => {

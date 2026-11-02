@@ -7,7 +7,12 @@ import {
   usernameToEmail,
   validateCredentials,
 } from "./credentials";
-import { parseAmount, type Category, type PaymentMethod } from "./expenses";
+import {
+  lastEmoji,
+  parseAmount,
+  type Category,
+  type PaymentMethod,
+} from "./expenses";
 import { createClient } from "./supabase/server";
 
 export interface AuthState {
@@ -102,19 +107,29 @@ export async function logout() {
   redirect("/login");
 }
 
-export async function addCategory(
-  name: string,
-): Promise<{ category?: Category; error?: string }> {
+function parseCategory(name: string, icon: string) {
   const trimmed = name.trim();
   if (!trimmed || trimmed.length > 40) {
     return { error: "Category name must be 1–40 characters." };
   }
+  if (icon && lastEmoji(icon) !== icon) {
+    return { error: "The icon must be a single emoji." };
+  }
+  return { row: { name: trimmed, icon: icon || null } };
+}
+
+export async function addCategory(
+  name: string,
+  icon: string,
+): Promise<{ category?: Category; error?: string }> {
+  const { row, error: invalid } = parseCategory(name, icon);
+  if (!row) return { error: invalid };
 
   const supabase = await authedClient();
   const { data, error } = await supabase
     .from("categories")
-    .insert({ name: trimmed })
-    .select("id, name")
+    .insert(row)
+    .select("id, name, icon")
     .single();
   if (error) {
     return {
@@ -125,8 +140,48 @@ export async function addCategory(
     };
   }
 
-  revalidatePath("/");
+  // Both pages show categories, so refresh everything under the root layout.
+  revalidatePath("/", "layout");
   return { category: data };
+}
+
+export async function updateCategory(
+  id: string,
+  name: string,
+  icon: string,
+): Promise<ActionResult> {
+  const { row, error: invalid } = parseCategory(name, icon);
+  if (!row) return { error: invalid };
+
+  const supabase = await authedClient();
+  const { error } = await supabase.from("categories").update(row).eq("id", id);
+  if (error) {
+    return {
+      error:
+        error.code === "23505"
+          ? "You already have that category."
+          : "Couldn't save the category.",
+    };
+  }
+
+  revalidatePath("/", "layout");
+  return {};
+}
+
+export async function deleteCategory(id: string): Promise<ActionResult> {
+  const supabase = await authedClient();
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) {
+    return {
+      error:
+        error.code === "23503"
+          ? "This category still has expenses. Move or delete them first."
+          : "Couldn't delete the category.",
+    };
+  }
+
+  revalidatePath("/", "layout");
+  return {};
 }
 
 export async function saveExpense(input: {

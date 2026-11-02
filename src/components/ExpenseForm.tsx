@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import EmojiInput from "./EmojiInput";
 import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
 import {
   amountToKeypad,
@@ -10,7 +11,7 @@ import {
   type Expense,
   type PaymentMethod,
 } from "@/lib/expenses";
-import { formatKeypadAmount } from "@/lib/format";
+import { formatCategory, formatKeypadAmount } from "@/lib/format";
 
 const METHODS: { id: PaymentMethod; label: string }[] = [
   { id: "card", label: "Card" },
@@ -44,6 +45,7 @@ export default function ExpenseForm({
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? "");
   const [addingCategory, setAddingCategory] = useState(categories.length === 0);
   const [newCategory, setNewCategory] = useState("");
+  const [newIcon, setNewIcon] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -61,10 +63,11 @@ export default function ExpenseForm({
     if (!newCategory.trim()) return;
     setError(null);
     startTransition(async () => {
-      const result = await addCategory(newCategory);
+      const result = await addCategory(newCategory, newIcon);
       if (result.category) {
         setCategoryId(result.category.id);
         setNewCategory("");
+        setNewIcon("");
         setAddingCategory(false);
       } else {
         setError(result.error ?? "Couldn't add the category.");
@@ -170,7 +173,7 @@ export default function ExpenseForm({
                   : "border-line bg-surface text-fg"
               }`}
             >
-              {category.name}
+              {formatCategory(category.name, category.icon)}
             </button>
           ))}
           {!addingCategory && (
@@ -191,6 +194,7 @@ export default function ExpenseForm({
               handleAddCategory();
             }}
           >
+            <EmojiInput value={newIcon} onChange={setNewIcon} />
             <input
               aria-label="New category name"
               placeholder="Category name"

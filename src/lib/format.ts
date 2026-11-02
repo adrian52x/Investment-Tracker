@@ -3,6 +3,8 @@ const LOCALE = "da-DK";
 const money = new Intl.NumberFormat(LOCALE, {
   style: "currency",
   currency: "DKK",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
 });
 
 export function formatMoney(value: number): string {
@@ -14,6 +16,11 @@ export function formatKeypadAmount(input: string): string {
   const [whole, decimals] = (input || "0").split(",");
   const grouped = new Intl.NumberFormat(LOCALE).format(Number(whole));
   return decimals === undefined ? grouped : `${grouped},${decimals}`;
+}
+
+/** A category's name, led by its emoji if it has one. */
+export function formatCategory(name: string, icon: string | null): string {
+  return icon ? `${icon} ${name}` : name;
 }
 
 export function formatDate(isoDate: string): string {

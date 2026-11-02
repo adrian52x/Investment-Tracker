@@ -3,6 +3,7 @@ export type PaymentMethod = "card" | "cash";
 export interface Category {
   id: string;
   name: string;
+  icon: string | null;
 }
 
 export interface Expense {
@@ -11,6 +12,7 @@ export interface Expense {
   paymentMethod: PaymentMethod;
   categoryId: string;
   categoryName: string;
+  categoryIcon: string | null;
   /** Calendar date, YYYY-MM-DD. */
   spentOn: string;
 }
@@ -18,6 +20,7 @@ export interface Expense {
 export interface CategoryTotal {
   id: string;
   name: string;
+  icon: string | null;
   total: number;
 }
 
@@ -30,6 +33,7 @@ export interface Summary {
 
 const TIME_ZONE = "Europe/Copenhagen";
 const MAX_AMOUNT = 9_999_999_999.99;
+const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
 
 /** Parses "125", "125,50" or "125.50" into a number; null if it isn't a valid amount. */
 export function parseAmount(input: string): number | null {
@@ -53,6 +57,16 @@ export function pressKey(current: string, key: string): string {
 /** Inverse of parseAmount, for loading a saved amount onto the keypad. */
 export function amountToKeypad(amount: number): string {
   return amount.toFixed(2).replace(/\.00$/, "").replace(".", ",");
+}
+
+/**
+ * The last emoji in the input, or "" if there is none. An emoji can span several
+ * code points, so this splits by what the user sees as one character.
+ */
+export function lastEmoji(input: string): string {
+  const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+  const characters = Array.from(segmenter.segment(input), (s) => s.segment);
+  return characters.findLast((character) => EMOJI.test(character)) ?? "";
 }
 
 /** The current month as YYYY-MM, in the app's home time zone. */
@@ -80,7 +94,10 @@ export function summarize(expenses: Expense[]): Summary {
   // Sum in øre so that decimal rounding can't drift across many rows.
   let card = 0;
   let cash = 0;
-  const byCategory = new Map<string, { name: string; total: number }>();
+  const byCategory = new Map<
+    string,
+    { name: string; icon: string | null; total: number }
+  >();
 
   for (const expense of expenses) {
     const ore = Math.round(expense.amount * 100);
@@ -92,6 +109,7 @@ export function summarize(expenses: Expense[]): Summary {
     else {
       byCategory.set(expense.categoryId, {
         name: expense.categoryName,
+        icon: expense.categoryIcon,
         total: ore,
       });
     }
@@ -102,7 +120,7 @@ export function summarize(expenses: Expense[]): Summary {
     card: card / 100,
     cash: cash / 100,
     categories: [...byCategory]
-      .map(([id, { name, total }]) => ({ id, name, total: total / 100 }))
+      .map(([id, entry]) => ({ id, ...entry, total: entry.total / 100 }))
       .sort((a, b) => b.total - a.total),
   };
 }
