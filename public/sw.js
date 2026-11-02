@@ -2,6 +2,10 @@
  * so they must never be stored here, where they would outlive a logout. */
 const CACHE = "expenses-v1";
 
+/* Dev assets keep their URLs when their code changes, so a worker left behind by
+ * a local production run would keep serving old code. It removes itself instead. */
+const IS_LOCAL = self.location.hostname === "localhost";
+
 self.addEventListener("install", () => self.skipWaiting());
 
 self.addEventListener("activate", (event) => {
@@ -9,13 +13,19 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+        Promise.all(
+          keys.filter((k) => IS_LOCAL || k !== CACHE).map((k) => caches.delete(k)),
+        ),
       )
-      .then(() => self.clients.claim()),
+      .then(() =>
+        IS_LOCAL ? self.registration.unregister() : self.clients.claim(),
+      ),
   );
 });
 
 self.addEventListener("fetch", (event) => {
+  if (IS_LOCAL) return;
+
   const { request } = event;
   if (request.method !== "GET") return;
   const url = new URL(request.url);
