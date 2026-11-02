@@ -33,7 +33,7 @@ export function formatDate(isoDate: string): string {
 /** The month alone, without its year; "narrow" gives a single letter. */
 export function formatMonthName(
   month: string,
-  style: "long" | "narrow" = "long",
+  style: "long" | "short" | "narrow" = "long",
 ): string {
   return new Intl.DateTimeFormat("en-GB", { month: style }).format(
     new Date(`${month}-01T00:00:00`),
@@ -45,11 +45,4 @@ export function formatAxisTick(value: number, top: number): string {
   return top >= 10_000 && value > 0
     ? `${value / 1000}k`
     : new Intl.NumberFormat(LOCALE).format(value);
-}
-
-export function formatMonth(month: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${month}-01T00:00:00`));
 }

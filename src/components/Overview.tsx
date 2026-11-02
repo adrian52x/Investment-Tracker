@@ -3,20 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import Chevron from "./Chevron";
 import ExpenseForm from "./ExpenseForm";
 import ExpenseRow from "./ExpenseRow";
+import MonthPicker, { monthHref } from "./MonthPicker";
 import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import { logout } from "@/lib/actions";
 import {
   currentMonth,
-  shiftMonth,
   summarize,
   type Category,
   type Expense,
 } from "@/lib/expenses";
-import { formatCategory, formatMoney, formatMonth } from "@/lib/format";
+import { formatCategory, formatMoney } from "@/lib/format";
 
 type FormState = { expense?: Expense } | null;
 
@@ -86,7 +85,7 @@ export default function Overview({
     // Follow the expense if its date puts it in another month.
     const savedMonth = spentOn.slice(0, 7);
     if (savedMonth !== month) {
-      router.push(savedMonth === currentMonth() ? "/" : `/?month=${savedMonth}`);
+      router.push(monthHref(savedMonth));
     }
     setForm(null);
   }
@@ -114,32 +113,7 @@ export default function Overview({
         </div>
       </header>
 
-      <nav
-        aria-label="Month"
-        className="mt-2 flex items-center justify-between"
-      >
-        <NavLink
-          href={`/?month=${shiftMonth(month, -1)}`}
-          aria-label="Previous month"
-          className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
-        >
-          <Chevron direction="left" />
-        </NavLink>
-        <p className="text-sm font-medium">{formatMonth(month)}</p>
-        {isCurrentMonth ? (
-          <span className="-mr-2 p-2.5 text-line" aria-hidden>
-            <Chevron direction="right" />
-          </span>
-        ) : (
-          <NavLink
-            href={`/?month=${shiftMonth(month, 1)}`}
-            aria-label="Next month"
-            className="-mr-2 rounded-full p-2.5 text-muted active:bg-line/60"
-          >
-            <Chevron direction="right" />
-          </NavLink>
-        )}
-      </nav>
+      <MonthPicker month={month} />
 
       <section className="pt-4 pb-6 text-center">
         <p className="text-sm text-muted">Total spent</p>

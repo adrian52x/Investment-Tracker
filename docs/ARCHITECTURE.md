@@ -50,7 +50,7 @@ src/app/login, signup        Both render <AuthForm mode=...>
 src/app/layout.tsx           Metadata, viewport, PWA manifest, <SWRegister>
 src/app/globals.css          Colour tokens (light and dark), animations
 
-src/components/Overview.tsx         Home: month nav, total, card/cash tiles, category
+src/components/Overview.tsx         Home: MonthPicker, total, card/cash tiles, category
                                     bars, filter chips, expense list (comment as the main text,
                                     category as a badge), "Add expense" button
 src/components/ExpenseForm.tsx      Full-screen add/edit sheet with a date pill in the header
@@ -58,7 +58,10 @@ src/components/ExpenseForm.tsx      Full-screen add/edit sheet with a date pill 
                                     number keypad, card/cash toggle, comment input, category chips,
                                     inline new category
 src/components/CategoryManager.tsx  List of categories with inline editor (name + emoji)
-src/components/YearOverview.tsx     Year nav (keeps q), YearSearch, totals, YearChart,
+src/components/MonthPicker.tsx      YearSelect over a 6×2 grid of month links, future months
+                                    greyed out; monthHref
+src/components/YearSelect.tsx       Year dropdown, FIRST_YEAR to this year; navigates to href(year)
+src/components/YearOverview.tsx     YearSelect (keeps q), YearSearch, totals, YearChart,
                                     per-month list
 src/components/YearSearch.tsx       GET <Form> for q (searches on submit, not while typing),
                                     match count and total, read-only result list

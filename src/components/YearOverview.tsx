@@ -5,7 +5,8 @@ import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import YearChart from "./YearChart";
 import YearSearch from "./YearSearch";
-import { currentMonth, type Expense, type MonthTotal } from "@/lib/expenses";
+import YearSelect from "./YearSelect";
+import type { Expense, MonthTotal } from "@/lib/expenses";
 import { formatMoney, formatMonthName } from "@/lib/format";
 
 export default function YearOverview({
@@ -20,9 +21,8 @@ export default function YearOverview({
   matches: Expense[];
 }) {
   // Switching year keeps the search, to look for the same thing in another year.
-  const yearHref = (target: number) =>
+  const yearHref = (target: string) =>
     `/year?year=${target}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
-  const isCurrentYear = year === currentMonth().slice(0, 4);
   const card = months.reduce((sum, month) => sum + month.card, 0);
   const cash = months.reduce((sum, month) => sum + month.cash, 0);
   const activeMonths = months.filter((month) => month.card + month.cash > 0);
@@ -40,28 +40,8 @@ export default function YearOverview({
         <h1 className="text-base font-semibold">Year overview</h1>
       </header>
 
-      <nav aria-label="Year" className="mt-2 flex items-center justify-between">
-        <NavLink
-          href={yearHref(Number(year) - 1)}
-          aria-label="Previous year"
-          className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
-        >
-          <Chevron direction="left" />
-        </NavLink>
-        <p className="text-sm font-medium">{year}</p>
-        {isCurrentYear ? (
-          <span className="-mr-2 p-2.5 text-line" aria-hidden>
-            <Chevron direction="right" />
-          </span>
-        ) : (
-          <NavLink
-            href={yearHref(Number(year) + 1)}
-            aria-label="Next year"
-            className="-mr-2 rounded-full p-2.5 text-muted active:bg-line/60"
-          >
-            <Chevron direction="right" />
-          </NavLink>
-        )}
+      <nav aria-label="Year" className="mt-2">
+        <YearSelect year={year} href={yearHref} />
       </nav>
 
       <YearSearch year={year} query={query} matches={matches} />
