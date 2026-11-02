@@ -9,7 +9,7 @@ A phone-first PWA for logging personal expenses in DKK. Each expense has an
 amount, a payment method (card or cash), a category, an optional comment, and a date
 (defaults to today in Copenhagen, can be set to any past date, never a future one). Users have a username and
 password, their own categories with an optional emoji icon, a monthly overview,
-and a yearly chart.
+and a yearly chart with a search of that year's comments.
 
 Stack: Next.js 16.3 (App Router, React 19.2), Supabase (Postgres, Auth, one
 edge function) through `@supabase/ssr`, Tailwind v4, and Vitest. Deployed on
@@ -34,15 +34,17 @@ src/lib/actions.ts           All server actions: login, signup, logout,
                              add/update/deleteCategory, saveExpense, deleteExpense
 src/lib/expenses.ts          Types and pure logic: parseAmount, pressKey (keypad),
                              amountToKeypad, lastEmoji, currentMonth, shiftMonth,
-                             currentDate, isDate, isMonth/isYear, summarize, summarizeYear
+                             currentDate, isDate, isMonth/isYear, summarize, summarizeYear,
+                             EXPENSE_COLUMNS + toExpense (row → Expense), containsPattern
 src/lib/expenses.test.ts     Vitest tests for the above
 src/lib/format.ts            da-DK money (whole kroner), dates, months, axis ticks
 src/lib/credentials.ts       Username/password rules and username → email mapping
 
 src/app/page.tsx             "/" ?month=YYYY-MM. Loads that month's expenses and all
                              categories, renders <Overview>
-src/app/year/page.tsx        "/year" ?year=YYYY. Loads the year in 1000-row pages,
-                             renders <YearOverview>
+src/app/year/page.tsx        "/year" ?year=YYYY&q=text. Loads the year in 1000-row pages
+                             and, when q is set, the expenses whose comment contains it
+                             (ilike). Renders <YearOverview>
 src/app/categories/page.tsx  "/categories" renders <CategoryManager>
 src/app/login, signup        Both render <AuthForm mode=...>
 src/app/layout.tsx           Metadata, viewport, PWA manifest, <SWRegister>
@@ -56,7 +58,11 @@ src/components/ExpenseForm.tsx      Full-screen add/edit sheet with a date pill 
                                     number keypad, card/cash toggle, comment input, category chips,
                                     inline new category
 src/components/CategoryManager.tsx  List of categories with inline editor (name + emoji)
-src/components/YearOverview.tsx     Year nav, totals, YearChart, per-month list
+src/components/YearOverview.tsx     Year nav (keeps q), YearSearch, totals, YearChart,
+                                    per-month list
+src/components/YearSearch.tsx       GET <Form> for q (searches on submit, not while typing),
+                                    match count and total, read-only result list
+src/components/ExpenseRow.tsx       One expense line; a button when given onClick
 src/components/YearChart.tsx        Hand-drawn grouped bar chart (card vs cash); tap a month
 src/components/NavLink.tsx          Link with a progress bar while the next page loads
 src/components/EmojiInput.tsx       Single-emoji input (keeps the last emoji typed)

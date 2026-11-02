@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import Overview from "@/components/Overview";
 import {
   currentMonth,
+  EXPENSE_COLUMNS,
   isMonth,
   shiftMonth,
-  type Expense,
-  type PaymentMethod,
+  toExpense,
 } from "@/lib/expenses";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,9 +25,7 @@ export default async function OverviewPage({
   const [expensesResult, categoriesResult] = await Promise.all([
     supabase
       .from("expenses")
-      .select(
-        "id, amount, payment_method, category_id, note, spent_on, categories(name, icon)",
-      )
+      .select(EXPENSE_COLUMNS)
       .gte("spent_on", `${month}-01`)
       .lt("spent_on", `${shiftMonth(month, 1)}-01`)
       .order("spent_on", { ascending: false })
@@ -38,22 +36,7 @@ export default async function OverviewPage({
   if (expensesResult.error) throw new Error(expensesResult.error.message);
   if (categoriesResult.error) throw new Error(categoriesResult.error.message);
 
-  const expenses: Expense[] = expensesResult.data.map((row) => {
-    const category = row.categories as unknown as {
-      name: string;
-      icon: string | null;
-    };
-    return {
-      id: row.id,
-      amount: row.amount,
-      paymentMethod: row.payment_method as PaymentMethod,
-      categoryId: row.category_id,
-      categoryName: category.name,
-      categoryIcon: category.icon,
-      note: row.note,
-      spentOn: row.spent_on,
-    };
-  });
+  const expenses = expensesResult.data.map(toExpense);
 
   const username = auth.claims.user_metadata?.username;
 

@@ -46,6 +46,38 @@ const MAX_AMOUNT = 9_999_999_999.99;
 export const MAX_NOTE_LENGTH = 200;
 const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
 
+/** The columns toExpense reads, with the category's name and icon joined in. */
+export const EXPENSE_COLUMNS =
+  "id, amount, payment_method, category_id, note, spent_on, categories(name, icon)";
+
+export function toExpense(row: {
+  id: string;
+  amount: number;
+  payment_method: string;
+  category_id: string;
+  note: string | null;
+  spent_on: string;
+  categories: unknown;
+}): Expense {
+  // An expense has one category, but the untyped client can't know that.
+  const category = row.categories as { name: string; icon: string | null };
+  return {
+    id: row.id,
+    amount: row.amount,
+    paymentMethod: row.payment_method as PaymentMethod,
+    categoryId: row.category_id,
+    categoryName: category.name,
+    categoryIcon: category.icon,
+    note: row.note,
+    spentOn: row.spent_on,
+  };
+}
+
+/** An ilike pattern for "contains", with any % or _ in the query taken literally. */
+export function containsPattern(query: string): string {
+  return `%${query.replace(/[\\%_]/g, "\\$&")}%`;
+}
+
 /** Parses "125", "125,50" or "125.50" into a number; null if it isn't a valid amount. */
 export function parseAmount(input: string): number | null {
   const value = input.trim();

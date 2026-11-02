@@ -4,16 +4,24 @@ import Chevron from "./Chevron";
 import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import YearChart from "./YearChart";
-import { currentMonth, type MonthTotal } from "@/lib/expenses";
+import YearSearch from "./YearSearch";
+import { currentMonth, type Expense, type MonthTotal } from "@/lib/expenses";
 import { formatMoney, formatMonthName } from "@/lib/format";
 
 export default function YearOverview({
   year,
   months,
+  query,
+  matches,
 }: {
   year: string;
   months: MonthTotal[];
+  query: string;
+  matches: Expense[];
 }) {
+  // Switching year keeps the search, to look for the same thing in another year.
+  const yearHref = (target: number) =>
+    `/year?year=${target}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
   const isCurrentYear = year === currentMonth().slice(0, 4);
   const card = months.reduce((sum, month) => sum + month.card, 0);
   const cash = months.reduce((sum, month) => sum + month.cash, 0);
@@ -34,7 +42,7 @@ export default function YearOverview({
 
       <nav aria-label="Year" className="mt-2 flex items-center justify-between">
         <NavLink
-          href={`/year?year=${Number(year) - 1}`}
+          href={yearHref(Number(year) - 1)}
           aria-label="Previous year"
           className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
         >
@@ -47,7 +55,7 @@ export default function YearOverview({
           </span>
         ) : (
           <NavLink
-            href={`/year?year=${Number(year) + 1}`}
+            href={yearHref(Number(year) + 1)}
             aria-label="Next year"
             className="-mr-2 rounded-full p-2.5 text-muted active:bg-line/60"
           >
@@ -55,6 +63,8 @@ export default function YearOverview({
           </NavLink>
         )}
       </nav>
+
+      <YearSearch year={year} query={query} matches={matches} />
 
       <section className="pt-4 pb-6 text-center">
         <p className="text-sm text-muted">Total spent</p>

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import Chevron from "./Chevron";
 import ExpenseForm from "./ExpenseForm";
+import ExpenseRow from "./ExpenseRow";
 import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import { logout } from "@/lib/actions";
@@ -15,12 +16,7 @@ import {
   type Category,
   type Expense,
 } from "@/lib/expenses";
-import {
-  formatCategory,
-  formatDate,
-  formatMoney,
-  formatMonth,
-} from "@/lib/format";
+import { formatCategory, formatMoney, formatMonth } from "@/lib/format";
 
 type FormState = { expense?: Expense } | null;
 
@@ -230,31 +226,10 @@ export default function Overview({
           <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
             {visibleExpenses.map((expense) => (
               <li key={expense.id}>
-                <button
+                <ExpenseRow
+                  expense={expense}
                   onClick={() => setForm({ expense })}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-line/40"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="flex min-w-0 items-center gap-2">
-                      {expense.note && (
-                        <span className="min-w-0 truncate text-base font-medium">
-                          {expense.note}
-                        </span>
-                      )}
-                      <span className="max-w-full shrink-0 truncate rounded-full border border-line bg-bg px-2 py-0.5 text-xs font-medium">
-                        {formatCategory(expense.categoryName, expense.categoryIcon)}
-                      </span>
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1 text-sm text-muted">
-                      {formatDate(expense.spentOn)} ·
-                      <PaymentIcon method={expense.paymentMethod} />
-                      {expense.paymentMethod === "card" ? "Card" : "Cash"}
-                    </span>
-                  </span>
-                  <span className="tnum shrink-0 text-base font-semibold">
-                    {formatMoney(expense.amount)}
-                  </span>
-                </button>
+                />
               </li>
             ))}
           </ul>

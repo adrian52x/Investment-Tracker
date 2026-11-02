@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   amountToKeypad,
+  containsPattern,
   currentDate,
   currentMonth,
   isDate,
@@ -68,6 +69,16 @@ describe("amountToKeypad", () => {
     expect(amountToKeypad(125)).toBe("125");
     expect(amountToKeypad(125.5)).toBe("125,50");
     expect(parseAmount(amountToKeypad(125.5))).toBe(125.5);
+  });
+});
+
+describe("containsPattern", () => {
+  it("matches the query anywhere", () => {
+    expect(containsPattern("kaffe")).toBe("%kaffe%");
+  });
+
+  it("takes wildcards and backslashes in the query literally", () => {
+    expect(containsPattern("50%_off\\")).toBe("%50\\%\\_off\\\\%");
   });
 });
 
