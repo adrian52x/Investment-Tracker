@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import Chevron from "./Chevron";
 import ExpenseForm from "./ExpenseForm";
 import NavLink from "./NavLink";
+import PaymentIcon from "./PaymentIcon";
 import { logout } from "@/lib/actions";
 import {
   currentMonth,
@@ -120,14 +121,17 @@ export default function Overview({
 
       <section className="grid grid-cols-2 gap-2">
         {[
-          { label: "Card", value: summary.card },
-          { label: "Cash", value: summary.cash },
-        ].map(({ label, value }) => (
+          { method: "card" as const, label: "Card", value: summary.card },
+          { method: "cash" as const, label: "Cash", value: summary.cash },
+        ].map(({ method, label, value }) => (
           <div
             key={label}
             className="rounded-xl border border-line bg-surface px-4 py-3"
           >
-            <p className="text-sm text-muted">{label}</p>
+            <p className="flex items-center gap-1.5 text-sm text-muted">
+              <PaymentIcon method={method} />
+              {label}
+            </p>
             <p className="tnum mt-0.5 text-base font-semibold">
               {formatMoney(value)}
             </p>
@@ -180,8 +184,9 @@ export default function Overview({
                     <span className="block truncate text-base font-medium">
                       {formatCategory(expense.categoryName, expense.categoryIcon)}
                     </span>
-                    <span className="block text-sm text-muted">
-                      {formatDate(expense.spentOn)} ·{" "}
+                    <span className="flex items-center gap-1 text-sm text-muted">
+                      {formatDate(expense.spentOn)} ·
+                      <PaymentIcon method={expense.paymentMethod} />
                       {expense.paymentMethod === "card" ? "Card" : "Cash"}
                     </span>
                   </span>
