@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Chevron from "./Chevron";
+import NavLink from "./NavLink";
 import YearChart from "./YearChart";
 import { currentMonth, type MonthTotal } from "@/lib/expenses";
 import { formatMoney, formatMonthName } from "@/lib/format";
@@ -21,37 +21,37 @@ export default function YearOverview({
   return (
     <main className="mx-auto max-w-lg px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]">
       <header className="flex items-center gap-1 py-2">
-        <Link
+        <NavLink
           href="/"
           aria-label="Back to overview"
           className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
         >
           <Chevron direction="left" />
-        </Link>
+        </NavLink>
         <h1 className="text-base font-semibold">Year overview</h1>
       </header>
 
       <nav aria-label="Year" className="mt-2 flex items-center justify-between">
-        <Link
+        <NavLink
           href={`/year?year=${Number(year) - 1}`}
           aria-label="Previous year"
           className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
         >
           <Chevron direction="left" />
-        </Link>
+        </NavLink>
         <p className="text-sm font-medium">{year}</p>
         {isCurrentYear ? (
           <span className="-mr-2 p-2.5 text-line" aria-hidden>
             <Chevron direction="right" />
           </span>
         ) : (
-          <Link
+          <NavLink
             href={`/year?year=${Number(year) + 1}`}
             aria-label="Next year"
             className="-mr-2 rounded-full p-2.5 text-muted active:bg-line/60"
           >
             <Chevron direction="right" />
-          </Link>
+          </NavLink>
         )}
       </nav>
 

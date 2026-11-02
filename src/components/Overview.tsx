@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import Chevron from "./Chevron";
 import ExpenseForm from "./ExpenseForm";
+import NavLink from "./NavLink";
 import { logout } from "@/lib/actions";
 import {
   currentMonth,
@@ -21,6 +22,20 @@ import {
 } from "@/lib/format";
 
 type FormState = { expense?: Expense } | null;
+
+function LogoutButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
+    >
+      Log out
+      {pending && <span aria-hidden className="nav-progress" />}
+    </button>
+  );
+}
 
 export default function Overview({
   username,
@@ -51,25 +66,20 @@ export default function Overview({
       <header className="flex items-center justify-between py-2">
         <h1 className="min-w-0 truncate text-base font-semibold">{username}</h1>
         <div className="-mr-2 flex shrink-0 items-center">
-          <Link
+          <NavLink
             href="/year"
             className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
           >
             Year
-          </Link>
-          <Link
+          </NavLink>
+          <NavLink
             href="/categories"
             className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
           >
             Categories
-          </Link>
+          </NavLink>
           <form action={logout}>
-            <button
-              type="submit"
-              className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
-            >
-              Log out
-            </button>
+            <LogoutButton />
           </form>
         </div>
       </header>
@@ -78,26 +88,26 @@ export default function Overview({
         aria-label="Month"
         className="mt-2 flex items-center justify-between"
       >
-        <Link
+        <NavLink
           href={`/?month=${shiftMonth(month, -1)}`}
           aria-label="Previous month"
           className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
         >
           <Chevron direction="left" />
-        </Link>
+        </NavLink>
         <p className="text-sm font-medium">{formatMonth(month)}</p>
         {isCurrentMonth ? (
           <span className="-mr-2 p-2.5 text-line" aria-hidden>
             <Chevron direction="right" />
           </span>
         ) : (
-          <Link
+          <NavLink
             href={`/?month=${shiftMonth(month, 1)}`}
             aria-label="Next month"
             className="-mr-2 rounded-full p-2.5 text-muted active:bg-line/60"
           >
             <Chevron direction="right" />
-          </Link>
+          </NavLink>
         )}
       </nav>
 

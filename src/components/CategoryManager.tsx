@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 import Chevron from "./Chevron";
 import EmojiInput from "./EmojiInput";
+import NavLink from "./NavLink";
 import {
   addCategory,
   deleteCategory,
@@ -135,13 +135,13 @@ export default function CategoryManager({
   return (
     <main className="mx-auto max-w-lg px-5 pt-[max(env(safe-area-inset-top),0.5rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]">
       <header className="flex items-center gap-1 py-2">
-        <Link
+        <NavLink
           href="/"
           aria-label="Back to overview"
           className="-ml-2 rounded-full p-2.5 text-muted active:bg-line/60"
         >
           <Chevron direction="left" />
-        </Link>
+        </NavLink>
         <h1 className="text-base font-semibold">Categories</h1>
       </header>
 

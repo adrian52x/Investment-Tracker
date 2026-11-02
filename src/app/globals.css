@@ -93,8 +93,39 @@ select {
   animation: page-in 0.2s ease-out;
 }
 
+/* Sweeps rather than fills, because how long a page will take isn't known. */
+@keyframes nav-progress {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+.nav-progress {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 0;
+  z-index: 60;
+  width: 40%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  animation: nav-progress 0.9s ease-in-out infinite;
+}
+
+:is(a, button):has(> .nav-progress) {
+  background: color-mix(in srgb, var(--line) 60%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page-in {
+    animation: none;
+  }
+
+  .nav-progress {
+    width: 100%;
     animation: none;
   }
 }
