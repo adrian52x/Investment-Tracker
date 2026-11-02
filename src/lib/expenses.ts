@@ -31,6 +31,15 @@ export interface Summary {
   categories: CategoryTotal[];
 }
 
+export interface MonthTotal {
+  /** Calendar month, YYYY-MM. */
+  month: string;
+  card: number;
+  cash: number;
+}
+
+export type YearExpense = Pick<Expense, "amount" | "paymentMethod" | "spentOn">;
+
 const TIME_ZONE = "Europe/Copenhagen";
 const MAX_AMOUNT = 9_999_999_999.99;
 const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
@@ -84,6 +93,10 @@ export function isMonth(value: unknown): value is string {
   return typeof value === "string" && /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
 }
 
+export function isYear(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}$/.test(value);
+}
+
 export function shiftMonth(month: string, delta: number): string {
   const [year, monthNumber] = month.split("-").map(Number);
   const date = new Date(Date.UTC(year, monthNumber - 1 + delta, 1));
@@ -123,4 +136,25 @@ export function summarize(expenses: Expense[]): Summary {
       .map(([id, entry]) => ({ id, ...entry, total: entry.total / 100 }))
       .sort((a, b) => b.total - a.total),
   };
+}
+
+/** One entry per month of the year, including months with no expenses. */
+export function summarizeYear(year: string, expenses: YearExpense[]): MonthTotal[] {
+  const months = Array.from({ length: 12 }, (_, index) => ({
+    month: `${year}-${String(index + 1).padStart(2, "0")}`,
+    card: 0,
+    cash: 0,
+  }));
+
+  // Sum in øre, as summarize does.
+  for (const expense of expenses) {
+    const month = months[Number(expense.spentOn.slice(5, 7)) - 1];
+    month[expense.paymentMethod] += Math.round(expense.amount * 100);
+  }
+
+  return months.map(({ month, card, cash }) => ({
+    month,
+    card: card / 100,
+    cash: cash / 100,
+  }));
 }

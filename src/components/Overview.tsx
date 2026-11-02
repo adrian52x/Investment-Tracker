@@ -52,6 +52,12 @@ export default function Overview({
         <h1 className="min-w-0 truncate text-base font-semibold">{username}</h1>
         <div className="-mr-2 flex shrink-0 items-center">
           <Link
+            href="/year"
+            className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
+          >
+            Year
+          </Link>
+          <Link
             href="/categories"
             className="rounded-lg px-2 py-2 text-sm text-muted active:opacity-60"
           >
