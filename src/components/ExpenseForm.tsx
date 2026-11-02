@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import EmojiInput from "./EmojiInput";
+import PaymentIcon from "./PaymentIcon";
 import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
 import {
   amountToKeypad,
@@ -148,10 +149,11 @@ export default function ExpenseForm({
             key={id}
             aria-pressed={method === id}
             onClick={() => setMethod(id)}
-            className={`flex-1 rounded-lg py-2.5 text-base font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-base font-medium transition-colors ${
               method === id ? "bg-accent text-on-accent" : "text-muted"
             }`}
           >
+            <PaymentIcon method={id} />
             {label}
           </button>
         ))}

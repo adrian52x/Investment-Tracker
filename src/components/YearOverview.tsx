@@ -2,6 +2,7 @@
 
 import Chevron from "./Chevron";
 import NavLink from "./NavLink";
+import PaymentIcon from "./PaymentIcon";
 import YearChart from "./YearChart";
 import { currentMonth, type MonthTotal } from "@/lib/expenses";
 import { formatMoney, formatMonthName } from "@/lib/format";
@@ -64,14 +65,17 @@ export default function YearOverview({
 
       <section className="grid grid-cols-2 gap-2">
         {[
-          { label: "Card", value: card },
-          { label: "Cash", value: cash },
-        ].map(({ label, value }) => (
+          { method: "card" as const, label: "Card", value: card },
+          { method: "cash" as const, label: "Cash", value: cash },
+        ].map(({ method, label, value }) => (
           <div
             key={label}
             className="rounded-xl border border-line bg-surface px-4 py-3"
           >
-            <p className="text-sm text-muted">{label}</p>
+            <p className="flex items-center gap-1.5 text-sm text-muted">
+              <PaymentIcon method={method} />
+              {label}
+            </p>
             <p className="mt-0.5 text-base font-semibold">{formatMoney(value)}</p>
           </div>
         ))}
@@ -96,10 +100,16 @@ export default function YearOverview({
                     Month
                   </th>
                   <th scope="col" className="py-1.5 text-right font-medium">
-                    Card
+                    <span className="inline-flex items-center gap-1">
+                      <PaymentIcon method="card" />
+                      Card
+                    </span>
                   </th>
                   <th scope="col" className="py-1.5 text-right font-medium">
-                    Cash
+                    <span className="inline-flex items-center gap-1">
+                      <PaymentIcon method="cash" />
+                      Cash
+                    </span>
                   </th>
                 </tr>
               </thead>

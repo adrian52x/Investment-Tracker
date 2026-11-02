@@ -20,9 +20,9 @@ export default function PaymentIcon({ method }: { method: PaymentMethod }) {
         </>
       ) : (
         <>
-          <rect x="1.8" y="5" width="16.4" height="10" rx="1.5" />
-          <circle cx="10" cy="10" r="2.25" />
-          <path d="M5 10h.01M15 10h.01" strokeWidth="2" />
+          <circle cx="7.5" cy="7.5" r="5.25" />
+          <path d="M6.4 6h1.1v3.5" />
+          <path d="M12.74 7.26A5.25 5.25 0 1 1 7.26 12.74" />
         </>
       )}
     </svg>

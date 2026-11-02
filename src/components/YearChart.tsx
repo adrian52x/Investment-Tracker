@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PaymentIcon from "./PaymentIcon";
 import type { MonthTotal } from "@/lib/expenses";
 import { formatAxisTick, formatMoney, formatMonthName } from "@/lib/format";
 
@@ -37,19 +38,27 @@ export default function YearChart({ months }: { months: MonthTotal[] }) {
         {SERIES.map(({ key, label, color }) => (
           <span key={key} className="flex items-center gap-1.5 text-sm">
             <span aria-hidden className={`h-2.5 w-2.5 rounded-sm ${color}`} />
+            <PaymentIcon method={key} />
             {label}
           </span>
         ))}
       </div>
 
-      <p aria-live="polite" className="mt-1 min-h-5 text-sm text-muted">
+      <p
+        aria-live="polite"
+        className="mt-1 flex min-h-5 flex-wrap items-center gap-x-1 text-sm text-muted"
+      >
         {active ? (
           <>
-            {formatMonthName(active.month)}: Card{" "}
+            {formatMonthName(active.month)}:
+            <PaymentIcon method="card" />
+            Card
             <span className="font-semibold text-fg">
               {formatMoney(active.card)}
-            </span>{" "}
-            · Cash{" "}
+            </span>
+            ·
+            <PaymentIcon method="cash" />
+            Cash
             <span className="font-semibold text-fg">
               {formatMoney(active.cash)}
             </span>
