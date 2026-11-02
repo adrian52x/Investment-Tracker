@@ -232,10 +232,17 @@ export default function Overview({
                   className="flex w-full items-center gap-3 px-4 py-3 text-left active:bg-line/40"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-base font-medium">
-                      {formatCategory(expense.categoryName, expense.categoryIcon)}
+                    <span className="flex min-w-0 items-center gap-2">
+                      {expense.note && (
+                        <span className="min-w-0 truncate text-base font-medium">
+                          {expense.note}
+                        </span>
+                      )}
+                      <span className="max-w-full shrink-0 truncate rounded-full border border-line bg-bg px-2 py-0.5 text-xs font-medium">
+                        {formatCategory(expense.categoryName, expense.categoryIcon)}
+                      </span>
                     </span>
-                    <span className="flex items-center gap-1 text-sm text-muted">
+                    <span className="mt-0.5 flex items-center gap-1 text-sm text-muted">
                       {formatDate(expense.spentOn)} ·
                       <PaymentIcon method={expense.paymentMethod} />
                       {expense.paymentMethod === "card" ? "Card" : "Cash"}

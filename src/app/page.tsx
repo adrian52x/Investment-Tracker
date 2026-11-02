@@ -25,7 +25,9 @@ export default async function OverviewPage({
   const [expensesResult, categoriesResult] = await Promise.all([
     supabase
       .from("expenses")
-      .select("id, amount, payment_method, category_id, spent_on, categories(name, icon)")
+      .select(
+        "id, amount, payment_method, category_id, note, spent_on, categories(name, icon)",
+      )
       .gte("spent_on", `${month}-01`)
       .lt("spent_on", `${shiftMonth(month, 1)}-01`)
       .order("spent_on", { ascending: false })
@@ -48,6 +50,7 @@ export default async function OverviewPage({
       categoryId: row.category_id,
       categoryName: category.name,
       categoryIcon: category.icon,
+      note: row.note,
       spentOn: row.spent_on,
     };
   });

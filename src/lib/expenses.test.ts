@@ -19,6 +19,7 @@ function expense(overrides: Partial<Expense>): Expense {
     categoryId: "food",
     categoryName: "Food",
     categoryIcon: null,
+    note: null,
     spentOn: "2026-11-02",
     ...overrides,
   };

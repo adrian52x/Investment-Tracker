@@ -6,6 +6,7 @@ import PaymentIcon from "./PaymentIcon";
 import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
 import {
   amountToKeypad,
+  MAX_NOTE_LENGTH,
   parseAmount,
   pressKey,
   type Category,
@@ -44,6 +45,7 @@ export default function ExpenseForm({
     existing?.paymentMethod ?? "card",
   );
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? "");
+  const [note, setNote] = useState(existing?.note ?? "");
   const [addingCategory, setAddingCategory] = useState(categories.length === 0);
   const [newCategory, setNewCategory] = useState("");
   const [newIcon, setNewIcon] = useState("");
@@ -84,6 +86,7 @@ export default function ExpenseForm({
         amount,
         paymentMethod: method,
         categoryId,
+        note,
       });
       if (result.error) setError(result.error);
       else onSaved();
@@ -158,6 +161,20 @@ export default function ExpenseForm({
           </button>
         ))}
       </div>
+
+      <input
+        aria-label="Comment"
+        placeholder="Comment (optional)"
+        className="mx-5 mt-3 shrink-0 rounded-xl border border-line bg-surface px-4 py-2.5 text-base outline-none focus:border-accent"
+        maxLength={MAX_NOTE_LENGTH}
+        enterKeyHint="done"
+        value={note}
+        onChange={(event) => setNote(event.target.value)}
+        onKeyDown={(event) => {
+          // Closes the system keyboard so the keypad is visible again.
+          if (event.key === "Enter") event.currentTarget.blur();
+        }}
+      />
 
       <section
         aria-label="Category"

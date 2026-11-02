@@ -13,6 +13,7 @@ export interface Expense {
   categoryId: string;
   categoryName: string;
   categoryIcon: string | null;
+  note: string | null;
   /** Calendar date, YYYY-MM-DD. */
   spentOn: string;
 }
@@ -42,6 +43,7 @@ export type YearExpense = Pick<Expense, "amount" | "paymentMethod" | "spentOn">;
 
 const TIME_ZONE = "Europe/Copenhagen";
 const MAX_AMOUNT = 9_999_999_999.99;
+export const MAX_NOTE_LENGTH = 200;
 const EMOJI = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
 
 /** Parses "125", "125,50" or "125.50" into a number; null if it isn't a valid amount. */

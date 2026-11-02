@@ -9,6 +9,7 @@ import {
 } from "./credentials";
 import {
   lastEmoji,
+  MAX_NOTE_LENGTH,
   parseAmount,
   type Category,
   type PaymentMethod,
@@ -189,6 +190,7 @@ export async function saveExpense(input: {
   amount: string;
   paymentMethod: PaymentMethod;
   categoryId: string;
+  note: string;
 }): Promise<ActionResult> {
   const amount = parseAmount(input.amount);
   if (amount === null) return { error: "Enter an amount." };
@@ -196,12 +198,17 @@ export async function saveExpense(input: {
     return { error: "Choose card or cash." };
   }
   if (!input.categoryId) return { error: "Choose a category." };
+  const note = input.note.trim();
+  if (note.length > MAX_NOTE_LENGTH) {
+    return { error: `Keep the comment under ${MAX_NOTE_LENGTH} characters.` };
+  }
 
   const supabase = await authedClient();
   const row = {
     amount,
     payment_method: input.paymentMethod,
     category_id: input.categoryId,
+    note: note || null,
   };
   const { error } = input.id
     ? await supabase.from("expenses").update(row).eq("id", input.id)
