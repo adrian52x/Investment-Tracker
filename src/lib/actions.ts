@@ -8,6 +8,8 @@ import {
   validateCredentials,
 } from "./credentials";
 import {
+  currentDate,
+  isDate,
   lastEmoji,
   MAX_NOTE_LENGTH,
   parseAmount,
@@ -191,6 +193,7 @@ export async function saveExpense(input: {
   paymentMethod: PaymentMethod;
   categoryId: string;
   note: string;
+  spentOn: string;
 }): Promise<ActionResult> {
   const amount = parseAmount(input.amount);
   if (amount === null) return { error: "Enter an amount." };
@@ -198,6 +201,10 @@ export async function saveExpense(input: {
     return { error: "Choose card or cash." };
   }
   if (!input.categoryId) return { error: "Choose a category." };
+  if (!isDate(input.spentOn)) return { error: "Choose a date." };
+  if (input.spentOn > currentDate()) {
+    return { error: "The date can't be in the future." };
+  }
   const note = input.note.trim();
   if (note.length > MAX_NOTE_LENGTH) {
     return { error: `Keep the comment under ${MAX_NOTE_LENGTH} characters.` };
@@ -209,6 +216,7 @@ export async function saveExpense(input: {
     payment_method: input.paymentMethod,
     category_id: input.categoryId,
     note: note || null,
+    spent_on: input.spentOn,
   };
   const { error } = input.id
     ? await supabase.from("expenses").update(row).eq("id", input.id)

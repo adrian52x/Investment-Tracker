@@ -80,15 +80,26 @@ export function lastEmoji(input: string): string {
   return characters.findLast((character) => EMOJI.test(character)) ?? "";
 }
 
-/** The current month as YYYY-MM, in the app's home time zone. */
-export function currentMonth(now: Date = new Date()): string {
+/** Today as YYYY-MM-DD, in the app's home time zone. */
+export function currentDate(now: Date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: TIME_ZONE,
     year: "numeric",
     month: "2-digit",
-  })
-    .format(now)
-    .slice(0, 7);
+    day: "2-digit",
+  }).format(now);
+}
+
+/** The current month as YYYY-MM, in the app's home time zone. */
+export function currentMonth(now: Date = new Date()): string {
+  return currentDate(now).slice(0, 7);
+}
+
+/** A real calendar date as YYYY-MM-DD, so "2026-02-30" is rejected. */
+export function isDate(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
 export function isMonth(value: unknown): value is string {

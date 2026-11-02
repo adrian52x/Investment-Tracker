@@ -6,6 +6,7 @@ import PaymentIcon from "./PaymentIcon";
 import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
 import {
   amountToKeypad,
+  currentDate,
   MAX_NOTE_LENGTH,
   parseAmount,
   pressKey,
@@ -13,7 +14,7 @@ import {
   type Expense,
   type PaymentMethod,
 } from "@/lib/expenses";
-import { formatCategory, formatKeypadAmount } from "@/lib/format";
+import { formatCategory, formatDate, formatKeypadAmount } from "@/lib/format";
 
 const METHODS: { id: PaymentMethod; label: string }[] = [
   { id: "card", label: "Card" },
@@ -21,6 +22,12 @@ const METHODS: { id: PaymentMethod; label: string }[] = [
 ];
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ",", "0", "backspace"];
+
+function dateLabel(date: string, today: string): string {
+  if (date === today) return "Today";
+  const label = formatDate(date);
+  return date.slice(0, 4) === today.slice(0, 4) ? label : `${label} ${date.slice(0, 4)}`;
+}
 
 /**
  * Full-screen entry form. It uses its own keypad rather than the system
@@ -36,8 +43,10 @@ export default function ExpenseForm({
   /** When set, the form edits this expense instead of creating one. */
   existing?: Expense;
   onClose: () => void;
-  onSaved: () => void;
+  /** Called with the saved expense's date. */
+  onSaved: (spentOn: string) => void;
 }) {
+  const today = currentDate();
   const [amount, setAmount] = useState(
     existing ? amountToKeypad(existing.amount) : "",
   );
@@ -46,6 +55,7 @@ export default function ExpenseForm({
   );
   const [categoryId, setCategoryId] = useState(existing?.categoryId ?? "");
   const [note, setNote] = useState(existing?.note ?? "");
+  const [spentOn, setSpentOn] = useState(existing?.spentOn ?? today);
   const [addingCategory, setAddingCategory] = useState(categories.length === 0);
   const [newCategory, setNewCategory] = useState("");
   const [newIcon, setNewIcon] = useState("");
@@ -87,9 +97,10 @@ export default function ExpenseForm({
         paymentMethod: method,
         categoryId,
         note,
+        spentOn,
       });
       if (result.error) setError(result.error);
-      else onSaved();
+      else onSaved(spentOn);
     });
   }
 
@@ -110,30 +121,72 @@ export default function ExpenseForm({
       aria-label={existing ? "Edit expense" : "Add expense"}
       className="sheet-in fixed inset-0 z-50 mx-auto flex h-dvh max-w-lg flex-col bg-bg pt-[max(env(safe-area-inset-top),0.5rem)] pb-[max(env(safe-area-inset-bottom),0.75rem)]"
     >
-      <header className="flex shrink-0 items-center justify-between px-3 py-1">
+      <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center px-3 py-1">
         <button
           onClick={onClose}
-          className="rounded-lg px-2 py-2 text-base text-muted active:opacity-60"
+          className="justify-self-start rounded-lg px-2 py-2 text-base text-muted active:opacity-60"
         >
           Cancel
         </button>
-        {existing &&
-          (confirmDelete ? (
-            <button
-              onClick={handleDelete}
-              disabled={pending}
-              className="rounded-lg px-2 py-2 text-base font-semibold text-neg active:opacity-60"
-            >
-              Confirm delete
-            </button>
-          ) : (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="rounded-lg px-2 py-2 text-base text-neg active:opacity-60"
-            >
-              Delete
-            </button>
-          ))}
+        {/* The native picker sits invisibly over the label, so a tap opens it. */}
+        <label className="relative flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium has-focus-visible:border-accent">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 14 14"
+            fill="none"
+            aria-hidden
+            className="text-muted"
+          >
+            <rect
+              x="1.5"
+              y="2.5"
+              width="11"
+              height="10"
+              rx="2"
+              stroke="currentColor"
+              strokeWidth="1.4"
+            />
+            <path
+              d="M1.5 6h11M4.5 1v3M9.5 1v3"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </svg>
+          {dateLabel(spentOn, today)}
+          <input
+            type="date"
+            aria-label="Date"
+            max={today}
+            required
+            value={spentOn}
+            onChange={(event) => {
+              // Clearing the field would leave no date; keep the last one instead.
+              if (event.target.value) setSpentOn(event.target.value);
+            }}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+        </label>
+        <div className="justify-self-end">
+          {existing &&
+            (confirmDelete ? (
+              <button
+                onClick={handleDelete}
+                disabled={pending}
+                className="rounded-lg px-2 py-2 text-base font-semibold text-neg active:opacity-60"
+              >
+                Confirm delete
+              </button>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="rounded-lg px-2 py-2 text-base text-neg active:opacity-60"
+              >
+                Delete
+              </button>
+            ))}
+        </div>
       </header>
 
       <output

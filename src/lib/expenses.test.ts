@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   amountToKeypad,
+  currentDate,
   currentMonth,
+  isDate,
   isMonth,
   lastEmoji,
   parseAmount,
@@ -92,6 +94,18 @@ describe("months", () => {
   it("uses Copenhagen time at the month boundary", () => {
     // 23:30 UTC on Oct 31 is already November in Copenhagen (UTC+1).
     expect(currentMonth(new Date("2026-10-31T23:30:00Z"))).toBe("2026-11");
+  });
+
+  it("dates today in Copenhagen time", () => {
+    expect(currentDate(new Date("2026-10-31T23:30:00Z"))).toBe("2026-11-01");
+  });
+
+  it("validates dates", () => {
+    expect(isDate("2026-11-02")).toBe(true);
+    expect(isDate("2028-02-29")).toBe(true);
+    for (const input of ["2026-02-30", "2026-13-01", "2026-1-2", "", 20261102]) {
+      expect(isDate(input)).toBe(false);
+    }
   });
 
   it("shifts across year boundaries", () => {

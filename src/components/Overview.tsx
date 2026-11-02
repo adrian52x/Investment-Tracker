@@ -86,9 +86,12 @@ export default function Overview({
     ? expenses.filter(({ categoryId }) => categoryId === filter.id)
     : expenses;
 
-  function handleSaved() {
-    // New expenses are dated today, so bring the user back to where it landed.
-    if (!form?.expense && !isCurrentMonth) router.push("/");
+  function handleSaved(spentOn: string) {
+    // Follow the expense if its date puts it in another month.
+    const savedMonth = spentOn.slice(0, 7);
+    if (savedMonth !== month) {
+      router.push(savedMonth === currentMonth() ? "/" : `/?month=${savedMonth}`);
+    }
     setForm(null);
   }
 

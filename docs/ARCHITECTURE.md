@@ -6,8 +6,8 @@ file. Keep it in step with the code when something here changes.
 ## What it is
 
 A phone-first PWA for logging personal expenses in DKK. Each expense has an
-amount, a payment method (card or cash), a category, an optional comment, and a date (always "today"
-in Copenhagen at creation; there is no date picker). Users have a username and
+amount, a payment method (card or cash), a category, an optional comment, and a date
+(defaults to today in Copenhagen, can be set to any past date, never a future one). Users have a username and
 password, their own categories with an optional emoji icon, a monthly overview,
 and a yearly chart.
 
@@ -34,7 +34,7 @@ src/lib/actions.ts           All server actions: login, signup, logout,
                              add/update/deleteCategory, saveExpense, deleteExpense
 src/lib/expenses.ts          Types and pure logic: parseAmount, pressKey (keypad),
                              amountToKeypad, lastEmoji, currentMonth, shiftMonth,
-                             isMonth/isYear, summarize, summarizeYear
+                             currentDate, isDate, isMonth/isYear, summarize, summarizeYear
 src/lib/expenses.test.ts     Vitest tests for the above
 src/lib/format.ts            da-DK money (whole kroner), dates, months, axis ticks
 src/lib/credentials.ts       Username/password rules and username → email mapping
@@ -51,8 +51,9 @@ src/app/globals.css          Colour tokens (light and dark), animations
 src/components/Overview.tsx         Home: month nav, total, card/cash tiles, category
                                     bars, filter chips, expense list (comment as the main text,
                                     category as a badge), "Add expense" button
-src/components/ExpenseForm.tsx      Full-screen add/edit sheet with its own number keypad,
-                                    card/cash toggle, comment input, category chips,
+src/components/ExpenseForm.tsx      Full-screen add/edit sheet with a date pill in the header
+                                    (an invisible native date input over a label), its own
+                                    number keypad, card/cash toggle, comment input, category chips,
                                     inline new category
 src/components/CategoryManager.tsx  List of categories with inline editor (name + emoji)
 src/components/YearOverview.tsx     Year nav, totals, YearChart, per-month list
@@ -109,7 +110,8 @@ by a direct POST.
 - Money is summed in øre (integers) and then divided by 100, to avoid float drift.
   Display has no decimals. The keypad uses Danish notation ("125,50").
 - Month and year params are validated, and future values fall back to the current one.
-- Times are in Europe/Copenhagen (`currentMonth`).
+- Times are in Europe/Copenhagen (`currentDate`, `currentMonth`). After saving,
+  the overview moves to the month the expense landed in.
 - Styling: Tailwind with semantic tokens (`bg`, `surface`, `line`, `fg`, `muted`,
   `accent`, `on-accent`, `neg`, `series-card`, `series-cash`), a `max-w-lg`
   column, safe-area padding, and `tnum` for numbers.
