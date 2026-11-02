@@ -38,6 +38,30 @@ function LogoutButton() {
   );
 }
 
+function FilterChip({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`max-w-full truncate rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+        selected
+          ? "border-accent bg-accent text-on-accent"
+          : "border-line bg-surface text-fg"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function Overview({
   username,
   month,
@@ -51,10 +75,16 @@ export default function Overview({
 }) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(null);
+  const [filterId, setFilterId] = useState<string | null>(null);
 
   const summary = summarize(expenses);
   const isCurrentMonth = month === currentMonth();
   const largestCategory = summary.categories[0]?.total ?? 0;
+  // Falls back to All when the chosen category has no expenses in this month.
+  const filter = summary.categories.find(({ id }) => id === filterId);
+  const visibleExpenses = filter
+    ? expenses.filter(({ categoryId }) => categoryId === filter.id)
+    : expenses;
 
   function handleSaved() {
     // New expenses are dated today, so bring the user back to where it landed.
@@ -166,6 +196,27 @@ export default function Overview({
 
       <section className="mt-8">
         <h2 className="mb-2 text-sm font-semibold text-muted">Expenses</h2>
+        {summary.categories.length > 1 && (
+          <div
+            role="group"
+            aria-label="Filter by category"
+            className="mb-2 flex flex-wrap gap-2"
+          >
+            <FilterChip
+              label="All"
+              selected={!filter}
+              onClick={() => setFilterId(null)}
+            />
+            {summary.categories.map((category) => (
+              <FilterChip
+                key={category.id}
+                label={formatCategory(category.name, category.icon)}
+                selected={category.id === filter?.id}
+                onClick={() => setFilterId(category.id)}
+              />
+            ))}
+          </div>
+        )}
         {expenses.length === 0 ? (
           <p className="rounded-xl border border-line bg-surface px-4 py-8 text-center text-sm text-muted">
             {isCurrentMonth
@@ -174,7 +225,7 @@ export default function Overview({
           </p>
         ) : (
           <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
-            {expenses.map((expense) => (
+            {visibleExpenses.map((expense) => (
               <li key={expense.id}>
                 <button
                   onClick={() => setForm({ expense })}
