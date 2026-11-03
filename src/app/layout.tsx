@@ -12,6 +12,7 @@ export const metadata: Metadata = {
     title: "Expenses",
   },
   icons: {
+    icon: { url: "/icons/icon-192.png", type: "image/png" },
     apple: "/icons/icon-192.png",
   },
 };
