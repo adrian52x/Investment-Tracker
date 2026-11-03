@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import Chevron from "./Chevron";
 import { login, signup, type AuthState } from "@/lib/actions";
+import { CURRENCIES, CURRENCY_NAMES } from "@/lib/currency";
 
 const COPY = {
   login: {
@@ -73,6 +75,37 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             <p className="mt-1.5 text-sm text-muted">At least 6 characters</p>
           )}
         </div>
+
+        {mode === "signup" && (
+          <div>
+            <label htmlFor="currency" className={labelCls}>
+              Currency
+            </label>
+            <div className="relative flex items-center">
+              <select
+                id="currency"
+                name="currency"
+                // No preselected currency: it can't be changed after signup.
+                defaultValue=""
+                className={`${inputCls} appearance-none pr-10 invalid:text-muted`}
+                required
+              >
+                <option value="" disabled>
+                  Choose currency
+                </option>
+                {CURRENCIES.map((currency) => (
+                  <option key={currency} value={currency}>
+                    {currency} – {CURRENCY_NAMES[currency]}
+                  </option>
+                ))}
+              </select>
+              <span aria-hidden className="pointer-events-none absolute right-4 text-muted">
+                <Chevron direction="down" />
+              </span>
+            </div>
+            <p className="mt-1.5 text-sm text-muted">Can&apos;t be changed later</p>
+          </div>
+        )}
 
         {state.error && (
           <p role="alert" className="rounded-xl bg-neg/10 px-4 py-3 text-sm text-neg">

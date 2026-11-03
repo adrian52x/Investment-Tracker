@@ -5,7 +5,8 @@ file. Keep it in step with the code when something here changes.
 
 ## What it is
 
-A phone-first PWA for logging personal expenses in DKK. Each expense has an
+A phone-first PWA for logging personal expenses in one currency per user (DKK,
+EUR, USD or MDL, chosen at signup). Each expense has an
 amount, a payment method (card or cash), a category, an optional comment, and a date
 (defaults to today in Copenhagen, can be set to any past date from 1 Jan 2026 on, never a future one). Users have a username and
 password, their own categories with an optional emoji icon, a monthly overview,
@@ -37,7 +38,10 @@ src/lib/expenses.ts          Types and pure logic: parseAmount, pressKey (keypad
                              currentDate, isDate, isMonth/isYear, summarize, summarizeYear,
                              EXPENSE_COLUMNS + toExpense (row → Expense), containsPattern
 src/lib/expenses.test.ts     Vitest tests for the above
-src/lib/format.ts            da-DK money (whole kroner), dates, months, axis ticks
+src/lib/format.ts            da-DK money (whole units, in the given currency),
+                             moneyParts, currencySymbol, dates, months, axis ticks
+src/lib/currency.ts          CURRENCIES, isCurrency, userCurrency (app_metadata → Currency)
+src/lib/currency.test.ts     Vitest tests for currency.ts and money formatting
 src/lib/credentials.ts       Username/password rules and username → email mapping
 
 src/app/page.tsx             "/" ?month=YYYY-MM. Loads that month's expenses and all
@@ -46,7 +50,7 @@ src/app/year/page.tsx        "/year" ?year=YYYY&q=text. Loads the year in 1000-r
                              and, when q is set, the expenses whose comment contains it
                              (ilike). Renders <YearOverview>
 src/app/categories/page.tsx  "/categories" renders <CategoryManager>
-src/app/login, signup        Both render <AuthForm mode=...>
+src/app/login, signup        Both render <AuthForm mode=...> (signup adds a currency select)
 src/app/layout.tsx           Metadata, viewport, PWA manifest, <SWRegister>
 src/app/globals.css          Colour tokens (light and dark), animations
 
@@ -66,6 +70,7 @@ src/components/YearOverview.tsx     YearSelect (keeps q), YearSearch, totals, Ye
 src/components/YearSearch.tsx       GET <Form> for q (searches on submit, not while typing),
                                     match count and total, read-only result list
 src/components/ExpenseRow.tsx       One expense line; a button when given onClick
+src/components/Money.tsx            An amount with a smaller, muted currency symbol
 src/components/YearChart.tsx        Hand-drawn grouped bar chart (card vs cash); tap a month
 src/components/NavLink.tsx          Link with a progress bar while the next page loads
 src/components/EmojiInput.tsx       Single-emoji input (keeps the last emoji typed)
@@ -102,9 +107,17 @@ expenses    id, user_id, category_id, amount numeric(12,2) > 0,
 
 Supabase Auth requires an email, so a username maps to
 `<username>@expenses.invalid`. Signup goes through the `signup` edge function,
-which creates the user already confirmed with `user_metadata.username`. The
-action then signs in. The rules live in both `src/lib/credentials.ts` and the
-edge function, so change them together. There is no password reset.
+which creates the user already confirmed with `user_metadata.username` and
+`app_metadata.currency`. The action then signs in. The rules live in both
+`src/lib/credentials.ts` and the edge function, and the currency list in both
+`src/lib/currency.ts` and the edge function, so change them together. There is
+no password reset.
+
+The currency is in `app_metadata` because users can't write it: changing it
+would relabel every expense they logged, so only an admin (SQL on `auth.users`)
+can. Pages read it from the claims with `userCurrency()` and pass it down as a
+prop. Accounts from before signup asked for it have none, and count as DKK.
+Expenses don't store a currency.
 
 Every page calls `getClaims()` and redirects to `/login` without a session, and
 so does every action (through `authedClient()`), because actions can be called

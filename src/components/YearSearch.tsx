@@ -3,9 +3,10 @@
 import Form from "next/form";
 import { useFormStatus } from "react-dom";
 import ExpenseRow from "./ExpenseRow";
+import Money from "./Money";
 import NavLink from "./NavLink";
+import type { Currency } from "@/lib/currency";
 import { MAX_NOTE_LENGTH, summarize, type Expense } from "@/lib/expenses";
-import { formatMoney } from "@/lib/format";
 
 function SearchButton() {
   const { pending } = useFormStatus();
@@ -27,10 +28,12 @@ function SearchButton() {
  */
 export default function YearSearch({
   year,
+  currency,
   query,
   matches,
 }: {
   year: string;
+  currency: Currency;
   query: string;
   matches: Expense[];
 }) {
@@ -58,7 +61,12 @@ export default function YearSearch({
           <div className="mb-2 flex items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-muted">
               {matches.length === 1 ? "1 match" : `${matches.length} matches`}
-              {matches.length > 0 && ` · ${formatMoney(summarize(matches).total)}`}
+              {matches.length > 0 && (
+                <>
+                  {" · "}
+                  <Money value={summarize(matches).total} currency={currency} />
+                </>
+              )}
             </h2>
             <NavLink
               href={`/year?year=${year}`}
@@ -75,7 +83,7 @@ export default function YearSearch({
             <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
               {matches.map((expense) => (
                 <li key={expense.id}>
-                  <ExpenseRow expense={expense} />
+                  <ExpenseRow expense={expense} currency={currency} />
                 </li>
               ))}
             </ul>

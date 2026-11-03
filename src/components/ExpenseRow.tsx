@@ -1,15 +1,19 @@
+import Money from "./Money";
 import PaymentIcon from "./PaymentIcon";
+import type { Currency } from "@/lib/currency";
 import type { Expense } from "@/lib/expenses";
-import { formatCategory, formatDate, formatMoney } from "@/lib/format";
+import { formatCategory, formatDate } from "@/lib/format";
 
 const ROW = "flex w-full items-center gap-3 px-4 py-3 text-left";
 
 /** One line of an expense list: comment, category, date, payment and amount. */
 export default function ExpenseRow({
   expense,
+  currency,
   onClick,
 }: {
   expense: Expense;
+  currency: Currency;
   onClick?: () => void;
 }) {
   const content = (
@@ -32,7 +36,7 @@ export default function ExpenseRow({
         </span>
       </span>
       <span className="tnum shrink-0 text-base font-semibold">
-        {formatMoney(expense.amount)}
+        <Money value={expense.amount} currency={currency} />
       </span>
     </>
   );

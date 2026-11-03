@@ -5,17 +5,19 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import ExpenseForm from "./ExpenseForm";
 import ExpenseRow from "./ExpenseRow";
+import Money from "./Money";
 import MonthPicker, { monthHref } from "./MonthPicker";
 import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import { logout } from "@/lib/actions";
+import type { Currency } from "@/lib/currency";
 import {
   currentMonth,
   summarize,
   type Category,
   type Expense,
 } from "@/lib/expenses";
-import { formatCategory, formatMoney } from "@/lib/format";
+import { formatCategory } from "@/lib/format";
 
 type FormState = { expense?: Expense } | null;
 
@@ -59,11 +61,13 @@ function FilterChip({
 
 export default function Overview({
   username,
+  currency,
   month,
   expenses,
   categories,
 }: {
   username: string;
+  currency: Currency;
   month: string;
   expenses: Expense[];
   categories: Category[];
@@ -118,7 +122,7 @@ export default function Overview({
       <section className="pt-4 pb-6 text-center">
         <p className="text-sm text-muted">Total spent</p>
         <p className="tnum mt-1 text-[2.75rem] leading-tight font-bold tracking-tight">
-          {formatMoney(summary.total)}
+          <Money value={summary.total} currency={currency} />
         </p>
       </section>
 
@@ -136,7 +140,7 @@ export default function Overview({
               {label}
             </p>
             <p className="tnum mt-0.5 text-base font-semibold">
-              {formatMoney(value)}
+              <Money value={value} currency={currency} />
             </p>
           </div>
         ))}
@@ -153,7 +157,7 @@ export default function Overview({
                     {formatCategory(category.name, category.icon)}
                   </span>
                   <span className="tnum shrink-0 text-sm font-semibold">
-                    {formatMoney(category.total)}
+                    <Money value={category.total} currency={currency} />
                   </span>
                 </div>
                 <div
@@ -202,6 +206,7 @@ export default function Overview({
               <li key={expense.id}>
                 <ExpenseRow
                   expense={expense}
+                  currency={currency}
                   onClick={() => setForm({ expense })}
                 />
               </li>
@@ -230,6 +235,7 @@ export default function Overview({
       {form && (
         <ExpenseForm
           categories={categories}
+          currency={currency}
           existing={form.expense}
           onClose={() => setForm(null)}
           onSaved={handleSaved}

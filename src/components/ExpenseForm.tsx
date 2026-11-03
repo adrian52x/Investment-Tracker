@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import EmojiInput from "./EmojiInput";
 import PaymentIcon from "./PaymentIcon";
 import { addCategory, deleteExpense, saveExpense } from "@/lib/actions";
+import type { Currency } from "@/lib/currency";
 import {
   amountToKeypad,
   currentDate,
@@ -15,7 +16,12 @@ import {
   type Expense,
   type PaymentMethod,
 } from "@/lib/expenses";
-import { formatCategory, formatDate, formatKeypadAmount } from "@/lib/format";
+import {
+  currencySymbol,
+  formatCategory,
+  formatDate,
+  formatKeypadAmount,
+} from "@/lib/format";
 
 const METHODS: { id: PaymentMethod; label: string }[] = [
   { id: "card", label: "Card" },
@@ -36,11 +42,13 @@ function dateLabel(date: string, today: string): string {
  */
 export default function ExpenseForm({
   categories,
+  currency,
   existing,
   onClose,
   onSaved,
 }: {
   categories: Category[];
+  currency: Currency;
   /** When set, the form edits this expense instead of creating one. */
   existing?: Expense;
   onClose: () => void;
@@ -198,7 +206,9 @@ export default function ExpenseForm({
         <span className={amount ? "" : "text-muted"}>
           {formatKeypadAmount(amount)}
         </span>{" "}
-        <span className="text-xl font-semibold text-muted">kr.</span>
+        <span className="text-xl font-semibold text-muted">
+          {currencySymbol(currency)}
+        </span>
       </output>
 
       <div className="mx-5 mt-2 flex shrink-0 rounded-xl bg-line/60 p-1">

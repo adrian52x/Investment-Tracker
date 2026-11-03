@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import YearOverview from "@/components/YearOverview";
+import { userCurrency } from "@/lib/currency";
 import {
   containsPattern,
   currentMonth,
@@ -84,6 +85,7 @@ export default async function YearPage({
   return (
     <YearOverview
       year={year}
+      currency={userCurrency(auth.claims.app_metadata)}
       months={summarizeYear(year, expenses)}
       query={query}
       matches={matches.map(toExpense)}

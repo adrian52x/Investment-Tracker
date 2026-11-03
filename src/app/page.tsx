@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Overview from "@/components/Overview";
+import { userCurrency } from "@/lib/currency";
 import {
   currentMonth,
   EXPENSE_COLUMNS,
@@ -43,6 +44,7 @@ export default async function OverviewPage({
   return (
     <Overview
       username={typeof username === "string" ? username : ""}
+      currency={userCurrency(auth.claims.app_metadata)}
       month={month}
       expenses={expenses}
       categories={categoriesResult.data}

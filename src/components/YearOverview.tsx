@@ -1,21 +1,25 @@
 "use client";
 
 import Chevron from "./Chevron";
+import Money from "./Money";
 import NavLink from "./NavLink";
 import PaymentIcon from "./PaymentIcon";
 import YearChart from "./YearChart";
 import YearSearch from "./YearSearch";
 import YearSelect from "./YearSelect";
+import type { Currency } from "@/lib/currency";
 import type { Expense, MonthTotal } from "@/lib/expenses";
-import { formatMoney, formatMonthName } from "@/lib/format";
+import { formatMonthName } from "@/lib/format";
 
 export default function YearOverview({
   year,
+  currency,
   months,
   query,
   matches,
 }: {
   year: string;
+  currency: Currency;
   months: MonthTotal[];
   query: string;
   matches: Expense[];
@@ -44,12 +48,12 @@ export default function YearOverview({
         <YearSelect year={year} href={yearHref} />
       </nav>
 
-      <YearSearch year={year} query={query} matches={matches} />
+      <YearSearch year={year} currency={currency} query={query} matches={matches} />
 
       <section className="pt-4 pb-6 text-center">
         <p className="text-sm text-muted">Total spent</p>
         <p className="mt-1 text-[2.75rem] leading-tight font-bold tracking-tight">
-          {formatMoney(card + cash)}
+          <Money value={card + cash} currency={currency} />
         </p>
       </section>
 
@@ -66,7 +70,9 @@ export default function YearOverview({
               <PaymentIcon method={method} />
               {label}
             </p>
-            <p className="mt-0.5 text-base font-semibold">{formatMoney(value)}</p>
+            <p className="mt-0.5 text-base font-semibold">
+              <Money value={value} currency={currency} />
+            </p>
           </div>
         ))}
       </section>
@@ -79,7 +85,7 @@ export default function YearOverview({
         <>
           <section className="mt-8">
             <h2 className="mb-2 text-sm font-semibold text-muted">By month</h2>
-            <YearChart months={months} />
+            <YearChart months={months} currency={currency} />
           </section>
 
           <section className="mt-3 rounded-xl border border-line bg-surface px-4 py-2">
@@ -110,10 +116,10 @@ export default function YearOverview({
                       {formatMonthName(month.month)}
                     </th>
                     <td className="tnum py-1.5 text-right">
-                      {formatMoney(month.card)}
+                      <Money value={month.card} currency={currency} />
                     </td>
                     <td className="tnum py-1.5 text-right">
-                      {formatMoney(month.cash)}
+                      <Money value={month.cash} currency={currency} />
                     </td>
                   </tr>
                 ))}

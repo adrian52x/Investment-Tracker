@@ -1,11 +1,13 @@
 // Creates a username/password account. Supabase Auth needs an email, so each
 // username maps to a placeholder address that is confirmed up front and never
-// mailed. Keep the rules in sync with src/lib/credentials.ts.
+// mailed. Keep the rules in sync with src/lib/credentials.ts, and the
+// currencies with src/lib/currency.ts.
 import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 
 const USERNAME_PATTERN = /^[a-z0-9._-]{3,30}$/;
 const MIN_PASSWORD_LENGTH = 6;
 const EMAIL_DOMAIN = "expenses.invalid";
+const CURRENCIES = ["EUR", "USD", "DKK", "MDL"];
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -21,12 +23,16 @@ Deno.serve(async (req) => {
   const username =
     typeof body?.username === "string" ? body.username.trim().toLowerCase() : "";
   const password = typeof body?.password === "string" ? body.password : "";
+  const currency = body?.currency;
 
   if (!USERNAME_PATTERN.test(username)) {
     return json(400, { error: "invalid_username" });
   }
   if (password.length < MIN_PASSWORD_LENGTH) {
     return json(400, { error: "weak_password" });
+  }
+  if (!CURRENCIES.includes(currency)) {
+    return json(400, { error: "invalid_currency" });
   }
 
   const admin = createClient(
@@ -40,6 +46,9 @@ Deno.serve(async (req) => {
     password,
     email_confirm: true,
     user_metadata: { username },
+    // app_metadata, unlike user_metadata, can't be changed by the user. Changing
+    // the currency would relabel every expense they already logged.
+    app_metadata: { currency },
   });
 
   if (error) {

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Money from "./Money";
 import PaymentIcon from "./PaymentIcon";
+import type { Currency } from "@/lib/currency";
 import type { MonthTotal } from "@/lib/expenses";
 import { formatAxisTick, formatMoney, formatMonthName } from "@/lib/format";
 
@@ -20,7 +22,13 @@ function axisStep(max: number): number {
   return [1, 2, 5, 10].find((factor) => factor * power >= rough)! * power;
 }
 
-export default function YearChart({ months }: { months: MonthTotal[] }) {
+export default function YearChart({
+  months,
+  currency,
+}: {
+  months: MonthTotal[];
+  currency: Currency;
+}) {
   // Phones have no hover, so tapping a month is what reveals its amounts.
   const [selected, setSelected] = useState<string | null>(null);
   const active = months.find(({ month }) => month === selected);
@@ -54,13 +62,13 @@ export default function YearChart({ months }: { months: MonthTotal[] }) {
             <PaymentIcon method="card" />
             Card
             <span className="font-semibold text-fg">
-              {formatMoney(active.card)}
+              <Money value={active.card} currency={currency} />
             </span>
             ·
             <PaymentIcon method="cash" />
             Cash
             <span className="font-semibold text-fg">
-              {formatMoney(active.cash)}
+              <Money value={active.cash} currency={currency} />
             </span>
           </>
         ) : (
@@ -95,7 +103,7 @@ export default function YearChart({ months }: { months: MonthTotal[] }) {
             {months.map(({ month, card, cash }) => (
               <button
                 key={month}
-                aria-label={`${formatMonthName(month)}: card ${formatMoney(card)}, cash ${formatMoney(cash)}`}
+                aria-label={`${formatMonthName(month)}: card ${formatMoney(card, currency)}, cash ${formatMoney(cash, currency)}`}
                 aria-pressed={month === selected}
                 onClick={() => setSelected(month === selected ? null : month)}
                 className={`flex min-w-0 flex-1 items-end justify-center gap-0.5 px-px transition-opacity ${

@@ -7,6 +7,7 @@ import {
   usernameToEmail,
   validateCredentials,
 } from "./credentials";
+import { isCurrency } from "./currency";
 import {
   currentDate,
   FIRST_DATE,
@@ -31,6 +32,7 @@ const SIGNUP_ERRORS: Record<string, string> = {
   username_taken: "That username is taken.",
   invalid_username: "That username isn't allowed.",
   weak_password: "Password must be at least 6 characters.",
+  invalid_currency: "Choose your currency.",
 };
 
 /** Actions are reachable by direct POST, so each one checks the session itself. */
@@ -71,9 +73,11 @@ export async function signup(
 ): Promise<AuthState> {
   const username = String(formData.get("username") ?? "");
   const password = String(formData.get("password") ?? "");
+  const currency = formData.get("currency");
 
   const invalid = validateCredentials(username, password);
   if (invalid) return { error: invalid };
+  if (!isCurrency(currency)) return { error: SIGNUP_ERRORS.invalid_currency };
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/signup`,
@@ -83,7 +87,11 @@ export async function signup(
         "Content-Type": "application/json",
         apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
       },
-      body: JSON.stringify({ username: normalizeUsername(username), password }),
+      body: JSON.stringify({
+        username: normalizeUsername(username),
+        password,
+        currency,
+      }),
     },
   );
   if (!response.ok) {

@@ -1,14 +1,44 @@
+import { CURRENCIES, type Currency } from "./currency";
+
 const LOCALE = "da-DK";
 
-const money = new Intl.NumberFormat(LOCALE, {
-  style: "currency",
-  currency: "DKK",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
+const money = Object.fromEntries(
+  CURRENCIES.map((currency) => [
+    currency,
+    new Intl.NumberFormat(LOCALE, {
+      style: "currency",
+      currency,
+      // "$" rather than "US$".
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }),
+  ]),
+) as Record<Currency, Intl.NumberFormat>;
 
-export function formatMoney(value: number): string {
-  return money.format(value);
+export function formatMoney(value: number, currency: Currency): string {
+  return money[currency].format(value);
+}
+
+/** The number and the symbol apart, e.g. "2.000" and "MDL", to style them apart. */
+export function moneyParts(
+  value: number,
+  currency: Currency,
+): { amount: string; symbol: string } {
+  const parts = money[currency].formatToParts(value);
+  return {
+    amount: parts
+      // "literal" is the space between number and symbol.
+      .filter(({ type }) => type !== "currency" && type !== "literal")
+      .map(({ value }) => value)
+      .join(""),
+    symbol: parts.find(({ type }) => type === "currency")!.value,
+  };
+}
+
+/** The symbol alone, e.g. "kr." or "€", to label the amount being typed. */
+export function currencySymbol(currency: Currency): string {
+  return moneyParts(0, currency).symbol;
 }
 
 /** Groups the whole part of a keypad amount, e.g. "1250,5" → "1.250,5". */
