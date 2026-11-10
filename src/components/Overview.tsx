@@ -75,6 +75,7 @@ export default function Overview({
   const router = useRouter();
   const [form, setForm] = useState<FormState>(null);
   const [filterId, setFilterId] = useState<string | null>(null);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const summary = summarize(expenses);
   const isCurrentMonth = month === currentMonth();
@@ -148,8 +149,34 @@ export default function Overview({
 
       {summary.categories.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-2 text-sm font-semibold text-muted">By category</h2>
-          <ul className="flex flex-col gap-3 rounded-xl border border-line bg-surface px-4 py-4">
+          <h2 className="text-sm font-semibold text-muted">
+            <button
+              type="button"
+              aria-expanded={categoriesOpen}
+              aria-controls="category-breakdown"
+              onClick={() => setCategoriesOpen((open) => !open)}
+              className="-mx-1 flex items-center gap-1 rounded-lg px-1 py-1 active:opacity-60"
+            >
+              By category
+              <svg
+                aria-hidden
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className={`size-4 transition-transform ${categoriesOpen ? "rotate-180" : ""}`}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </h2>
+          <ul
+            id="category-breakdown"
+            hidden={!categoriesOpen}
+            className="mt-1 flex flex-col gap-3 rounded-xl border border-line bg-surface px-4 py-4"
+          >
             {summary.categories.map((category) => (
               <li key={category.id}>
                 <div className="flex items-baseline justify-between gap-3">
